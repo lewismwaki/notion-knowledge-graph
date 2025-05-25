@@ -93,7 +93,7 @@ export async function fetchAllPages() {
   console.log('Fetching pages from Notion...');
   
   // Get the root page ID from environment variables
-  const rootPageId = process.env.NOTION_ROOT_PAGE_ID;
+  const rootPageId = "1fd13edac11f803b9ff1e4220dfca3a9";
   
   if (!rootPageId) {
     console.error('NOTION_ROOT_PAGE_ID is not defined in .env file');

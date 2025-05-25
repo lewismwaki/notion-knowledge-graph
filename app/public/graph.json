@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "1fd13edac11f80619051d6cd97ab26ce",
+      "label": "ML Roadmap",
+      "url": "https://www.notion.so/ML-Roadmap-1fd13edac11f80619051d6cd97ab26ce",
+      "lastEdited": "2025-05-25T18:26:00.000Z",
+      "type": "database_item"
+    },
+    {
+      "id": "1fe13edac11f8098a568fbd571cd024b",
+      "label": "cross-validation",
+      "url": "TODO: add url",
+      "type": "referenced"
+    },
+    {
+      "id": "1fe13edac11f80739ce2e8cc4dd2dc35",
+      "label": "k-fold validation",
+      "url": "TODO: add url",
+      "type": "referenced"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1fd13edac11f80619051d6cd97ab26ce",
+      "target": "1fe13edac11f8098a568fbd571cd024b",
+      "type": "mention"
+    },
+    {
+      "source": "1fd13edac11f80619051d6cd97ab26ce",
+      "target": "1fe13edac11f80739ce2e8cc4dd2dc35",
+      "type": "mention"
+    }
+  ],
+  "clusters": {
+    "byTags": [
+      {
+        "id": "uncategorized",
+        "label": "Uncategorized",
+        "nodes": [
+          "1fd13edac11f80619051d6cd97ab26ce",
+          "1fe13edac11f8098a568fbd571cd024b",
+          "1fe13edac11f80739ce2e8cc4dd2dc35"
+        ]
+      }
+    ],
+    "byConnections": [
+      {
+        "id": "community-0",
+        "label": "Group 1",
+        "nodes": [
+          "1fd13edac11f80619051d6cd97ab26ce",
+          "1fe13edac11f8098a568fbd571cd024b",
+          "1fe13edac11f80739ce2e8cc4dd2dc35"
+        ]
+      }
+    ]
+  }
+}

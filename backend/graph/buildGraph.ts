@@ -27,7 +27,7 @@ export async function buildGraph() {
     console.log(`Generated ${clusters.byTags.length} tag clusters and ${clusters.byConnections.length} connection clusters`);
     
     // Step 4: Export as graph.json for the frontend
-    const outputDir = path.resolve(__dirname, '../../frontend/public');
+    const outputDir = path.resolve(__dirname, '../../app/public');
     
     // Ensure the output directory exists
     if (!fs.existsSync(outputDir)) {
