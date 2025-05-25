@@ -1,0 +1,23 @@
+{
+  "name": "notion-graph",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Notion Knowledge Graph Visualizer",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "backend:dev": "npm --prefix backend run dev",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "sync": "npm --prefix backend run sync",
+    "start": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

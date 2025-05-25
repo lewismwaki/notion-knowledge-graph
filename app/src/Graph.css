@@ -1,0 +1,23 @@
+.graph-container {
+  width: 100%;
+  height: 100%;
+  background-color: #fafafa;
+  position: relative;
+}
+
+/* Node hover effects */
+.sigma-node {
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sigma-node:hover,
+.sigma-node.highlighted {
+  border: 2px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Edge hover effects */
+.sigma-edge.highlighted {
+  stroke-width: 2px;
+}

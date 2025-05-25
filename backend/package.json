@@ -1,0 +1,22 @@
+{
+  "name": "notion-graph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "dev": "nodemon --exec ts-node index.ts",
+    "sync": "ts-node graph/buildGraph.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@notionhq/client": "^3.1.2",
+    "dotenv": "^16.5.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3"
+  }
+}
