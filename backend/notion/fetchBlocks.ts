@@ -1,7 +1,7 @@
 import { notion } from './notionClient';
 import { rateLimit } from '../utils/rateLimiter';
+import { IGNORED_DATABASE_IDS, IGNORE_INLINE_LINKED_DBS, IGNORE_DATABASE_RELATIONS } from './config';
 
-// Type definitions
 export type Block = {
   id: string;
   type: string;
@@ -9,7 +9,6 @@ export type Block = {
   [key: string]: any;
 };
 
-// Fetch blocks for a page with pagination support
 export async function fetchBlocksForPage(pageId: string): Promise<Block[]> {
   const blocks: Block[] = [];
   let hasMore = true;
@@ -19,10 +18,8 @@ export async function fetchBlocksForPage(pageId: string): Promise<Block[]> {
   
   while (hasMore) {
     try {
-      // Apply rate limiting
       await rateLimit();
       
-      // Fetch blocks from Notion
       const response = await notion.blocks.children.list({
         block_id: pageId,
         start_cursor: cursor,
@@ -31,13 +28,21 @@ export async function fetchBlocksForPage(pageId: string): Promise<Block[]> {
       
       blocks.push(...response.results as Block[]);
       
-      // Check if there are more blocks to fetch
       hasMore = response.has_more;
       cursor = response.next_cursor || undefined;
       
     } catch (error) {
       console.error(`Error fetching blocks for page ${pageId}:`, error);
       break;
+    }
+  }
+  
+  // Log database blocks when fetched if we're in debug mode
+  const databaseBlocks = blocks.filter(block => block.type === 'child_database');
+  if (databaseBlocks.length > 0) {
+    console.log(`Found ${databaseBlocks.length} database blocks in page ${pageId}`);
+    if (IGNORE_INLINE_LINKED_DBS) {
+      console.log(`These database blocks will be ignored due to IGNORE_INLINE_LINKED_DBS=true`);
     }
   }
   
@@ -58,30 +63,65 @@ export async function fetchBlocksForPage(pageId: string): Promise<Block[]> {
 export async function processBlocksForPage(pageId: string) {
   const blocks = await fetchBlocksForPage(pageId);
   const mentions: { sourcePageId: string; targetPageId: string; type: 'mention' | 'relation' }[] = [];
+  const skippedDatabases: string[] = [];
+  const inlineLinkedDatabases: string[] = [];
   
   // Traverse blocks to find mentions
   for (const block of blocks) {
     extractMentionsFromBlock(block, pageId, mentions);
-    
-    // Handle database blocks
+      // Handle database blocks
     if (block.type === 'child_database') {
-      const databaseRelations = await processDatabase(block.id, pageId);
+      // Skip if the database is in the ignore list
+      if (IGNORED_DATABASE_IDS.includes(block.id)) {
+        inlineLinkedDatabases.push(block.id);
+        console.log(`Ignoring database ${block.id} as it's in the ignored list`);
+        continue;
+      }
       
-      // Add database relations as mentions
-      for (const relation of databaseRelations) {
-        mentions.push({
-          sourcePageId: pageId,
-          targetPageId: relation.targetPageId,
-          type: relation.type
-        });
+      // Skip all inline linked databases if the flag is set
+      if (IGNORE_INLINE_LINKED_DBS) {
+        inlineLinkedDatabases.push(block.id);
+        console.log(`Ignoring database ${block.id} as IGNORE_INLINE_LINKED_DBS is true`);
+        continue;
+      }
+      
+      // Skip database relations if the flag is set (only process @mentions)
+      if (IGNORE_DATABASE_RELATIONS) {
+        inlineLinkedDatabases.push(block.id);
+        console.log(`Ignoring database relations for ${block.id} as IGNORE_DATABASE_RELATIONS is true`);
+        continue;
+      }
+      
+      try {
+        const databaseRelations = await processDatabase(block.id, pageId);
+        
+        // Add database relations as mentions
+        for (const relation of databaseRelations) {
+          mentions.push({
+            sourcePageId: pageId,
+            targetPageId: relation.targetPageId,
+            type: relation.type
+          });
+        }
+      } catch (error) {
+        skippedDatabases.push(block.id);
+        console.warn(`Skipped processing database ${block.id} due to an error`);
       }
     }
+  }
+  
+  if (skippedDatabases.length > 0) {
+    console.log(`Note: ${skippedDatabases.length} database(s) were skipped while processing page ${pageId}`);
+  }
+  
+  if (inlineLinkedDatabases.length > 0) {
+    console.log(`Note: ${inlineLinkedDatabases.length} inline linked database(s) were ignored while processing page ${pageId}`);
   }
   
   return { blocks, mentions };
 }
 
-// Extract mentions from a block
+// Extract @mention connections from a block (ignores database relations)
 function extractMentionsFromBlock(
   block: Block, 
   sourcePageId: string, 
@@ -106,13 +146,11 @@ function extractMentionsFromBlock(
           type: 'mention'
         });
       }
-    }
-  }
+    }  }
   
-  // Handle relation properties in databases
-  if (block.type === 'child_database') {
-    // We'll handle database relations during processDatabase call
-  }
+  // Note: Database relations are handled separately in processBlocksForPage
+  // This function only extracts @mention connections between pages
+  // If IGNORE_DATABASE_RELATIONS is true, only @mentions will be processed
 }
 
 // Process a database to extract relation properties
@@ -173,9 +211,20 @@ export async function processDatabase(databaseId: string, sourcePageId: string):
         }
       }
     }
-  } catch (error) {
-    console.error(`Error processing database ${databaseId}:`, error);
+  } catch (error: any) {
+    // Check for specific "object_not_found" error
+    if (error.code === 'object_not_found') {
+      console.warn(`Database not accessible: ${databaseId}. This database needs to be shared with your integration.`);
+      console.warn(`To fix this issue:
+      1. Go to the database in Notion
+      2. Click "Share" in the top-right corner
+      3. Click "Add people, groups, or integrations"
+      4. Search for and select your integration
+      5. Click "Invite"`);    } else {
+      console.error(`Error processing database ${databaseId}:`, error);
+    }
   }
   
   return relations;
 }
+  

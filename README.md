@@ -11,6 +11,7 @@ A read-only, auto-syncing knowledge graph layer on top of your Notion workspace 
 - **No data entry:** Keeps Notion as the writing/input tool
 - **Incremental sync:** Only fetches changed content
 - **Node clustering:** By tags or inferred topic
+- **Configurable Filtering:** Option to ignore inline linked databases
 
 ## Getting Started
 
@@ -60,6 +61,37 @@ npm run dev
 ```
 
 3. Open your browser and navigate to `http://localhost:3000`
+
+## Configuration
+
+You can customize the behavior of the Notion graph extraction by modifying the configuration settings:
+
+### Ignoring Inline Linked Databases
+
+If you want to ignore inline linked databases (which can clutter the graph), you can configure this behavior in `backend/notion/config.ts`:
+
+```ts
+// Ignore all inline linked databases
+export const IGNORE_INLINE_LINKED_DBS = true;
+
+// Ignore specific databases by ID
+export const IGNORED_DATABASE_IDS = [
+  '1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p'
+];
+```
+
+Setting `IGNORE_INLINE_LINKED_DBS` to `true` will skip all database blocks during graph extraction, which can significantly improve performance and reduce noise in the resulting graph.
+
+### Testing Configuration Changes
+
+You can test your configuration changes by running:
+
+```bash
+cd backend
+npm run test:ignore-dbs
+```
+
+This will report how many database blocks were found and whether they were ignored.
 
 ## Development
 

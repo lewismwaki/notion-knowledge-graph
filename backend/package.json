@@ -2,12 +2,12 @@
   "name": "notion-graph",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
-  "scripts": {
+  "license": "MIT",  "scripts": {
     "start": "ts-node index.ts",
     "dev": "nodemon --exec ts-node index.ts",
     "sync": "ts-node graph/buildGraph.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test:ignore-dbs": "ts-node testIgnoreInlineLinkedDbs.ts"
   },
   "dependencies": {
     "@notionhq/client": "^3.1.2",

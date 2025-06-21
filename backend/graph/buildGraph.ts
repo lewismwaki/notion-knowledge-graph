@@ -43,6 +43,21 @@ export async function buildGraph() {
     
     console.log(`Graph exported to ${outputPath}`);
     
+    // Show a summary about permission issues if there were any
+    const unknownNodes = nodes.filter(node => node.type === 'unknown').length;
+    if (unknownNodes > 0) {
+      console.log(`\nPermission Summary:`);
+      console.log(`Found ${unknownNodes} page(s) that couldn't be fully accessed.`);
+      console.log(`If you're seeing errors about databases not being found, please ensure all relevant`);
+      console.log(`databases and pages are shared with your Notion integration.`);
+      console.log(`\nTo share content with your integration:`);
+      console.log(`1. Go to the page or database in Notion`);
+      console.log(`2. Click "Share" in the top-right corner`);
+      console.log(`3. Click "Add people, groups, or integrations"`);
+      console.log(`4. Search for and select your integration`);
+      console.log(`5. Click "Invite"`);
+    }
+    
   } catch (error) {
     console.error('Error building graph:', error);
   }

@@ -24,6 +24,7 @@ export async function extractGraphData(pages: any[]) {
   const nodes: PageNode[] = [];
   const edges: Edge[] = [];
   const nodeMap = new Map<string, PageNode>();
+  const failedPages: string[] = [];
   
   console.log(`Extracting graph data from ${pages.length} pages...`);
   
@@ -88,7 +89,7 @@ export async function extractGraphData(pages: any[]) {
             nodeMap.set(targetId, {
               id: targetId,
               label: targetTitle,
-              url: "TODO: add url",
+              url: `https://notion.so/${targetId.replace(/-/g, '')}`,
               type: 'referenced'
             });
           } catch (error) {
@@ -103,13 +104,19 @@ export async function extractGraphData(pages: any[]) {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      failedPages.push(page.id);
       console.error(`Error processing page ${page.id}:`, error);
     }
   }
   
   // Convert node map to array
   nodes.push(...nodeMap.values());
+  
+  // Report summary of failed pages
+  if (failedPages.length > 0) {
+    console.warn(`Failed to process ${failedPages.length} page(s) out of ${pages.length} total`);
+  }
   
   return { nodes, edges };
 }
